@@ -1,0 +1,15 @@
+track_parcel:
+  fields:
+    tracking_code:
+      required: true
+      example: "SD0000123456"
+      selector:
+        text:
+
+untrack_parcel:
+  fields:
+    tracking_code:
+      required: true
+      example: "SD0000123456"
+      selector:
+        text:
