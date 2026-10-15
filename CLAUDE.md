@@ -45,11 +45,11 @@ you act in one of these areas:
 
 ## Carrier-specific notes
 
-- **Source:** one keyless page per registered code, fetched with `aiohttp`
-  (direct GET, one request at a time, no redirects followed, descriptive
-  User-Agent, no retries) and read by `parser.py`, which fails closed. Values
-  are matched on label text and column headers, never on table position or CSS
-  row classes. The parse runs in a worker thread, not on the event loop.
+- **Source:** one keyless tracking reply per registered code, read by
+  `parser.py`, which fails closed. Values are matched on their label, never on
+  position, and the reading runs in a worker thread rather than on the event
+  loop. The request's own requirements are in
+  `carrier-research/spee-dee-delivery/api/tracking.md`; do not relax them.
 - **Own shipments only.** Codes come from the user and nowhere else. **Never**
   add discovery, batching, the multi-code form route, code guessing, a code
   regex for e-mail extraction (so there is deliberately no e-mail example), a
@@ -66,27 +66,23 @@ you act in one of these areas:
 - **Status:** the summary status is authoritative, but an unrecognised one
   falls back to the newest progress row that does map, and only then to
   `unknown` — the suite's map-then-history-then-warn rule. The warning fires
-  either way. Mapping is case-insensitive on collapsed whitespace:
-  `Delivered`, `OUT FOR DELIVERY (...)`, `ARRIVAL SCAN`, `IN TRANSIT`,
-  `UNLOAD SCAN: ...`
-  and `** MISSORT SCANS **` (always `problem` in history, even when the
-  summary has moved on to `in_transit`). Everything else takes the history
-  fallback above, plus one warning that names only the text before any `(` or
-  `:`.
-- **Times:** the page shows US Central time without an offset; parsed as
-  `America/Chicago` (DST-aware). If the page lacks the Central Time footer the
-  times are dropped (events without a time are left out of `history`) and one
-  warning is logged.
+  either way, and names only the text before any `(` or `:`. Mapping is
+  case-insensitive on collapsed whitespace; the vocabulary itself lives in
+  `_EXACT_STATUSES` / `_PREFIX_STATUSES` and in the research notes. A missort
+  scan stays `problem` in history even when the summary has moved on to
+  `in_transit`.
+- **Times:** the carrier states US Central time without an offset; parsed as
+  `America/Chicago` (DST-aware). With nothing to confirm the zone, the times
+  are dropped (events without a time are left out of `history`) and one
+  warning is logged — never dated from a guess.
 - **Privacy:** `raw` is the whole parsed record, untrimmed — the suite rule is
   that it always carries every field the source has, and privacy lives in
-  `diagnostics.py` alone. So `Signed by`, `Delivered to` and the per-scan
-  location column are all in `raw`
-  (`{trackingNumber, summaryStatus, deliveredOn, signedBy, deliveredTo,
-  events[timestamp, location, activity]}`) and all three are in `TO_REDACT`.
-  None of them is read into a normalised field. `raw_status` — both the
-  top-level one and each history entry's — is cut at the first `(` or `:`,
-  because real scans read `OUT FOR DELIVERY (22045)` and `UNLOAD SCAN: 01055`
-  and those five-digit codes cannot be ruled out as locations. That is the
+  `diagnostics.py` alone. So the signature, the delivery destination and the
+  per-scan location are all in `raw`, and all three are in `TO_REDACT`. None
+  of them is read into a normalised field. `raw_status` — both the top-level
+  one and each history entry's — is cut at the first `(` or `:`, because some
+  scans carry a trailing five-digit code there that cannot be ruled out as a
+  location. That is the
   same cut `ha-straightship` makes, and it matters because `raw_status` and
   `history` survive the aggregator's `strip_raw()` and ride in entity
   attributes, where `raw` is at least kept out of the recorder by
