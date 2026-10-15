@@ -66,6 +66,25 @@ def test_map_parcel_status_unmapped_is_unknown():
     assert map_parcel_status("TELEPORTED") == ParcelStatus.UNKNOWN
 
 
+def test_an_unmapped_summary_falls_back_to_the_newest_mapped_scan(caplog):
+    raw = delivered_sample()
+    raw["summaryStatus"] = "TELEPORTED"
+    raw["events"] = raw["events"][:-1]  # no delivered scan left
+    with caplog.at_level("WARNING"):
+        parcel = normalize_parcel(raw)
+    assert parcel["status"] == ParcelStatus.OUT_FOR_DELIVERY
+    assert parcel["raw_status"] == "TELEPORTED"
+    assert parcel["delivered"] is False
+    assert "Unrecognised" in caplog.text
+
+
+def test_an_unmapped_summary_without_a_mappable_scan_stays_unknown():
+    raw = delivered_sample()
+    raw["summaryStatus"] = "TELEPORTED"
+    raw["events"] = [event("WARPED", "2026-04-28T06:01:00-05:00", "Fakeville Depot")]
+    assert normalize_parcel(raw)["status"] == ParcelStatus.UNKNOWN
+
+
 def test_delivered_is_an_exact_match():
     """Only the bare word is terminal; a longer sentence must not count."""
     assert map_parcel_status("Delivered to neighbour") == ParcelStatus.UNKNOWN

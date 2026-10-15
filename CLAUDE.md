@@ -63,13 +63,16 @@ you act in one of these areas:
   without the summary or progress table, a redirect, a challenge page, 429 and
   5xx all raise `SpeeDeeDeliveryApiError`; the coordinator keeps the last good
   data. An empty or unrecognised parse never marks a parcel delivered.
-- **Status:** the summary status is authoritative; the newest progress row is
-  not consulted. Mapping is case-insensitive on collapsed whitespace:
+- **Status:** the summary status is authoritative, but an unrecognised one
+  falls back to the newest progress row that does map, and only then to
+  `unknown` — the suite's map-then-history-then-warn rule. The warning fires
+  either way. Mapping is case-insensitive on collapsed whitespace:
   `Delivered`, `OUT FOR DELIVERY (...)`, `ARRIVAL SCAN`, `IN TRANSIT`,
   `UNLOAD SCAN: ...`
   and `** MISSORT SCANS **` (always `problem` in history, even when the
-  summary has moved on to `in_transit`). Everything else is `unknown` plus one
-  warning that names only the text before any `(` or `:`.
+  summary has moved on to `in_transit`). Everything else takes the history
+  fallback above, plus one warning that names only the text before any `(` or
+  `:`.
 - **Times:** the page shows US Central time without an offset; parsed as
   `America/Chicago` (DST-aware). If the page lacks the Central Time footer the
   times are dropped (events without a time are left out of `history`) and one

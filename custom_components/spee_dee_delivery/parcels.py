@@ -115,6 +115,24 @@ def map_parcel_status(text: str | None) -> ParcelStatus:
     return ParcelStatus.UNKNOWN
 
 
+def _status_from_history(raw: dict) -> ParcelStatus | None:
+    """Return the newest progress row that does map, else ``None``.
+
+    A parcel whose summary carries a wording we have never seen is almost
+    never a parcel in an unknown state — its scans still say where it is.
+    """
+    events = raw.get("events")
+    if not isinstance(events, list):
+        return None
+    for event in reversed(events):
+        if not isinstance(event, dict):
+            continue
+        mapped = classify_status(event.get("activity"))
+        if mapped is not None:
+            return mapped
+    return None
+
+
 def map_event_status(text: str | None) -> ParcelStatus | None:
     """Map a history entry's activity to a canonical status, or ``None``.
 
@@ -216,6 +234,8 @@ def normalize_parcel(raw: dict, *, include_history: bool = False) -> dict:
     tracking_code = raw.get("trackingNumber")
     summary_status = raw.get("summaryStatus")
     status = map_parcel_status(summary_status)
+    if status is ParcelStatus.UNKNOWN:
+        status = _status_from_history(raw) or ParcelStatus.UNKNOWN
     delivered = status is ParcelStatus.DELIVERED
 
     return {
