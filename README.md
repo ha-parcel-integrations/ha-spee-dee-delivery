@@ -45,7 +45,7 @@ Part of the [ha-parcel-integrations](https://ha-parcel-integrations.github.io/) 
 
 ## Requirements
 
-- Home Assistant 2024.12 or newer
+- Home Assistant 2025.12 or newer
 - A parcel sent to you by Spee-Dee Delivery and its tracking code — no
   account needed. Spee-Dee Delivery's tracking page is meant for shipments
   tendered by or for you, so only add codes of your own shipments
