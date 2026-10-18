@@ -19,6 +19,8 @@ from zoneinfo import ZoneInfo
 _LOGGER = logging.getLogger(__name__)
 
 DISPLAY_TIMEZONE = "America/Chicago"
+# Built once at import: constructing a ZoneInfo reads the tz file from disk.
+_DISPLAY_TZ = ZoneInfo(DISPLAY_TIMEZONE)
 _TIMEZONE_FOOTER = "central time (usa)"
 _PROGRESS_HEADING = "package progress"
 _SUMMARY_CLASS = "u-full-width"
@@ -232,7 +234,7 @@ def parse_page(html: str, tracking_code: str) -> dict:
 
     zone: ZoneInfo | None = None
     if _TIMEZONE_FOOTER in clean_text(" ".join(parser.text_parts)).lower():
-        zone = ZoneInfo(DISPLAY_TIMEZONE)
+        zone = _DISPLAY_TZ
     else:
         warn_once("timezone", "Spee-Dee Delivery page lacks the expected time zone")
 
