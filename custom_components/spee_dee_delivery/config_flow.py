@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -14,6 +13,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers import selector
+import voluptuous as vol
 
 from .const import (
     CONF_DELIVERED_FILTER_AMOUNT,
@@ -28,6 +28,7 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
 
 def normalize_tracking_code(value: str) -> str:
     """Return the code trimmed of surrounding whitespace, otherwise untouched.

@@ -6,6 +6,7 @@ and dates. Only the page's structure is modelled — element order, the
 labels, ``<br>`` and whitespace quirks. Keep them in one module rather than
 inline in each test so there is exactly one place to fix.
 """
+
 from __future__ import annotations
 
 ACTIVE_CODE = "EXAMPLE999999"
@@ -110,7 +111,9 @@ def delivered_sample(code: str = DELIVERED_CODE) -> dict:
         "deliveredTo": "1 Invented Way Zed Sample, KS",
         "events": [
             event("ARRIVAL SCAN", "2026-04-28T06:01:00-05:00", "Fakeville Depot"),
-            event("UNLOAD SCAN: Dock 4", "2026-04-28T15:52:17-05:00", "Fakeville Depot"),
+            event(
+                "UNLOAD SCAN: Dock 4", "2026-04-28T15:52:17-05:00", "Fakeville Depot"
+            ),
             event(
                 "OUT FOR DELIVERY (Route 12)",
                 "2026-04-29T08:46:00-05:00",

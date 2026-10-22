@@ -1,4 +1,5 @@
 """Tests for the Spee-Dee Delivery API client."""
+
 from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
@@ -10,13 +11,7 @@ from custom_components.spee_dee_delivery.api import (
     SpeeDeeDeliveryApiError,
 )
 
-from .payloads import (
-    ACTIVE_CODE,
-    DELIVERED_CODE,
-    PII,
-    delivered_html,
-    in_transit_html,
-)
+from .payloads import ACTIVE_CODE, DELIVERED_CODE, PII, delivered_html, in_transit_html
 
 
 def _session_returning(
@@ -95,7 +90,9 @@ async def test_429_carries_retry_after_seconds():
     assert err.value.retry_after == 120.0
 
 
-@pytest.mark.parametrize("headers", [{}, {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}])
+@pytest.mark.parametrize(
+    "headers", [{}, {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}]
+)
 async def test_429_without_usable_retry_after(headers):
     client = SpeeDeeDeliveryApiClient(_session_returning(429, headers=headers))
     with pytest.raises(SpeeDeeDeliveryApiError) as err:

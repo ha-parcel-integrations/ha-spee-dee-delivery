@@ -1,4 +1,5 @@
 """Tests for the package page parser, on synthetic pages only."""
+
 import pytest
 
 from custom_components.spee_dee_delivery.parser import (
@@ -18,7 +19,9 @@ from .payloads import (
 )
 
 SUMMARY = summary_html([("Status:", "ARRIVAL SCAN"), ("Tracking Number:", ACTIVE_CODE)])
-PROGRESS = progress_html([("01/15/2026 09:30:00 AM", "Fakeville Depot", "ARRIVAL SCAN")])
+PROGRESS = progress_html(
+    [("01/15/2026 09:30:00 AM", "Fakeville Depot", "ARRIVAL SCAN")]
+)
 
 
 def _parse(html: str, code: str = ACTIVE_CODE) -> dict:
@@ -88,7 +91,12 @@ def test_unrecognised_status_text_passes_through_unmapped():
 
 def test_whitespace_and_br_are_normalised():
     html = page(
-        summary_html([("Status:", "OUT FOR<br>\n   DELIVERY&nbsp;(Route 1)"), ("Tracking Number:", ACTIVE_CODE)]),
+        summary_html(
+            [
+                ("Status:", "OUT FOR<br>\n   DELIVERY&nbsp;(Route 1)"),
+                ("Tracking Number:", ACTIVE_CODE),
+            ]
+        ),
         PROGRESS,
     )
     assert _parse(html)["summaryStatus"] == "OUT FOR DELIVERY (Route 1)"
@@ -110,7 +118,13 @@ def test_labels_and_headers_are_case_insensitive_and_position_independent():
 
 def test_daylight_saving_is_applied_not_a_fixed_offset():
     html = page(
-        summary_html([("Status:", "Delivered"), ("Delivered on:", "11/01/2026 01:30 PM"), ("Tracking Number:", ACTIVE_CODE)]),
+        summary_html(
+            [
+                ("Status:", "Delivered"),
+                ("Delivered on:", "11/01/2026 01:30 PM"),
+                ("Tracking Number:", ACTIVE_CODE),
+            ]
+        ),
         progress_html(
             [
                 ("11/01/2026 01:30:00 PM", "X", "Delivered"),
@@ -155,7 +169,13 @@ def test_blank_timestamp_is_silently_none(caplog):
 
 def test_unexpected_label_warns_once_without_values(caplog):
     html = page(
-        summary_html([("Status:", "ARRIVAL SCAN"), ("Tracking Number:", ACTIVE_CODE), ("Weight:", "4 lb")]),
+        summary_html(
+            [
+                ("Status:", "ARRIVAL SCAN"),
+                ("Tracking Number:", ACTIVE_CODE),
+                ("Weight:", "4 lb"),
+            ]
+        ),
         PROGRESS,
     )
     _parse(html)
@@ -179,7 +199,10 @@ def test_missing_tracking_number_label_warns(caplog):
 
 
 def test_registered_code_is_always_the_barcode():
-    assert _parse(page(SUMMARY, PROGRESS), "EXAMPLE000000")["trackingNumber"] == "EXAMPLE000000"
+    assert (
+        _parse(page(SUMMARY, PROGRESS), "EXAMPLE000000")["trackingNumber"]
+        == "EXAMPLE000000"
+    )
 
 
 def test_empty_progress_table_is_valid_history():
@@ -187,7 +210,10 @@ def test_empty_progress_table_is_valid_history():
 
 
 def test_blank_progress_rows_are_skipped():
-    html = page(SUMMARY, progress_html([("", "", ""), ("01/15/2026 09:30:00 AM", "X", "ARRIVAL SCAN")]))
+    html = page(
+        SUMMARY,
+        progress_html([("", "", ""), ("01/15/2026 09:30:00 AM", "X", "ARRIVAL SCAN")]),
+    )
     assert len(_parse(html)["events"]) == 1
 
 
@@ -204,7 +230,11 @@ def test_void_and_self_closing_tags_and_implicit_cell_ends():
         '<h3>Package Progress</h3><table class="x"><tr><th>Date / Time<th>Location<th>Activity'
         "<tr><td>01/15/2026 09:30 AM<td>X<td>ARRIVAL<br/>SCAN</table>"
     )
-    summary = '<table class="u-full-width"><tr><td>Status:<td>Delivered<tr><td>Tracking Number:<td>' + ACTIVE_CODE + "</table>"
+    summary = (
+        '<table class="u-full-width"><tr><td>Status:<td>Delivered<tr><td>Tracking Number:<td>'
+        + ACTIVE_CODE
+        + "</table>"
+    )
     raw = _parse("<img src=x><p>Central Time (USA)</p>" + summary + html)
     assert raw["events"][0]["activity"] == "ARRIVAL SCAN"
     assert raw["events"][0]["timestamp"] == "2026-01-15T09:30:00-06:00"
@@ -216,14 +246,23 @@ def test_void_and_self_closing_tags_and_implicit_cell_ends():
         "",
         "<html><body>Sorry, nothing here</body></html>",
         page("", PROGRESS),  # no summary table
-        page('<table class="other"><tr><td>Status:</td><td>X</td></tr></table>', PROGRESS),
+        page(
+            '<table class="other"><tr><td>Status:</td><td>X</td></tr></table>', PROGRESS
+        ),
         page(summary_html([("Tracking Number:", ACTIVE_CODE)]), PROGRESS),  # no Status
-        page(summary_html([("Status:", ""), ("Tracking Number:", ACTIVE_CODE)]), PROGRESS),
+        page(
+            summary_html([("Status:", ""), ("Tracking Number:", ACTIVE_CODE)]), PROGRESS
+        ),
         page(SUMMARY, ""),  # no progress table
         page(SUMMARY, progress_html([], headers=("Date / Time", "Activity"))),
         page(SUMMARY, progress_html([], headers=())),
         page(SUMMARY, PROGRESS.replace("Package Progress", "Something else")),
-        page(SUMMARY, progress_html([("01/15/2026 09:30:00 AM", "X", "ARRIVAL SCAN")]).replace("<td>X</td>", "")),
+        page(
+            SUMMARY,
+            progress_html([("01/15/2026 09:30:00 AM", "X", "ARRIVAL SCAN")]).replace(
+                "<td>X</td>", ""
+            ),
+        ),
         page(summary_html([("Status:", "A"), ("Status:", "B")]), PROGRESS),
         page(SUMMARY + "<table><tr><td><table></table></td></tr></table>", PROGRESS),
     ],

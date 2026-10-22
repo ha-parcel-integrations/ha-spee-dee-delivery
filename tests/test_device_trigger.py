@@ -1,4 +1,5 @@
 """Tests for Spee-Dee Delivery device triggers."""
+
 from unittest.mock import AsyncMock
 
 from custom_components.spee_dee_delivery.const import DOMAIN

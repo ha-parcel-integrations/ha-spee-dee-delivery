@@ -8,12 +8,13 @@ row classes. Every value the page carries reaches ``raw`` untrimmed, including
 the recipient, destination, signature and per-scan location; keeping them out
 of diagnostics is ``diagnostics.py``'s job, not the parser's.
 """
+
 from __future__ import annotations
 
-import logging
-import re
 from datetime import datetime
 from html.parser import HTMLParser
+import logging
+import re
 from zoneinfo import ZoneInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -173,9 +174,7 @@ def _progress(tables: list[_Table]) -> list[tuple[str, str, str]]:
         header = [cell.lower() for cell in table.rows[0]]
         if any(name not in header for name in _PROGRESS_HEADERS):
             raise SpeeDeeDeliveryParseError("progress headers missing")
-        date_at, location_at, activity_at = (
-            header.index(n) for n in _PROGRESS_HEADERS
-        )
+        date_at, location_at, activity_at = (header.index(n) for n in _PROGRESS_HEADERS)
         width = len(header)
         events = []
         for row in table.rows[1:]:

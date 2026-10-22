@@ -11,6 +11,7 @@ The contract the coordinator relies on:
 * lets ``aiohttp.ClientError`` propagate untouched — ``DataUpdateCoordinator``
   already wraps those into ``UpdateFailed``.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -65,9 +66,12 @@ class SpeeDeeDeliveryApiClient:
         """
         code = tracking_code.strip()
         url = TRACKING_API_URL.format(tracking_code=quote(code, safe=""))
-        async with self._lock, self._session.get(
-            url, headers={"User-Agent": USER_AGENT}, allow_redirects=False
-        ) as response:
+        async with (
+            self._lock,
+            self._session.get(
+                url, headers={"User-Agent": USER_AGENT}, allow_redirects=False
+            ) as response,
+        ):
             if response.status == 404:
                 return None
             if response.status == 429:

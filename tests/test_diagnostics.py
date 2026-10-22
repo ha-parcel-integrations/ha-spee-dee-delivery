@@ -1,4 +1,5 @@
 """Tests for Spee-Dee Delivery diagnostics."""
+
 from datetime import timedelta
 from unittest.mock import MagicMock
 
@@ -34,7 +35,9 @@ async def test_diagnostics_redacts_and_counts(hass):
                     }
                 ],
             },
-            "history": [{"timestamp": "2026-04-29T08:46:00-05:00", "raw_status": "ARRIVAL SCAN"}],
+            "history": [
+                {"timestamp": "2026-04-29T08:46:00-05:00", "raw_status": "ARRIVAL SCAN"}
+            ],
         }
     ]
     entry.runtime_data.coordinator.delivered = []

@@ -1,4 +1,5 @@
 """Tests for the Spee-Dee Delivery refresh button."""
+
 from unittest.mock import AsyncMock, MagicMock
 
 from custom_components.spee_dee_delivery.button import SpeeDeeDeliveryRefreshButton
