@@ -118,7 +118,9 @@ Standard HA removal applies: **Settings → Devices & Services → Spee-Dee Deli
 | `sensor.spee_dee_delivery_incoming_parcels` | Number of active tracked parcels, full list under the `parcels` attribute |
 | `sensor.spee_dee_delivery_parcel_<code>` | One per tracked parcel; state is the canonical status, attributes carry the full normalised parcel |
 | `sensor.spee_dee_delivery_next_delivery` | Earliest expected delivery moment across all active parcels |
+| `sensor.spee_dee_delivery_awaiting_pickup` | Incoming parcels that are ready to collect at a pickup point |
 | `sensor.spee_dee_delivery_delivered_parcels` | Recently delivered parcels (see the retention option) |
+| `calendar.spee_dee_delivery_deliveries` | Read-only calendar of expected deliveries, no extra API calls |
 | `sensor.spee_dee_delivery_last_successful_update` | Diagnostic: when Spee-Dee Delivery was last polled successfully |
 
 A delivered parcel moves from its per-parcel sensor to the delivered sensor automatically.
