@@ -1,6 +1,7 @@
 {
   "domain": "spee_dee_delivery",
   "name": "Spee-Dee Delivery",
+  "categories": ["productivity_information"],
   "codeowners": [
     "@peter-mdf"
   ],
