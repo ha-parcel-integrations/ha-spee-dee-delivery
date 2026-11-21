@@ -37,8 +37,10 @@ KNOWN_CAPABILITIES = frozenset(
 )
 
 # ``history`` is the only optional field the carrier exposes beyond the
-# detail link: no ETA, weight, dimensions or pickup point appears on its page,
-# and recipient data is deliberately never surfaced.
+# detail link: no ETA, weight or dimensions appears on its page, and recipient
+# data is deliberately never surfaced. No pickup point name, status or flag
+# has been seen on a real parcel yet, so ``pickup_point`` stays ``None`` and
+# ``pickup`` is derived from the status history.
 CAPABILITIES = frozenset({"url", "history"})
 
 # Fields whose support is not confirmed yet — typically a carrier built without
@@ -50,7 +52,7 @@ CAPABILITIES = frozenset({"url", "history"})
 # into CAPABILITIES. A multi-backend carrier declares
 # PENDING_CAPABILITIES_BY_VARIANT with the same keys as its
 # CAPABILITIES_BY_VARIANT instead (omit backends with nothing pending).
-PENDING_CAPABILITIES: frozenset[str] = frozenset()
+PENDING_CAPABILITIES: frozenset[str] = frozenset({"pickup_point"})
 
 # If this carrier ever grows a second backend with a genuinely different
 # payload shape (a country-specific API, not just a config option), replace

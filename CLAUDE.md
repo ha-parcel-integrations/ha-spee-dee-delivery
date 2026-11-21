@@ -35,10 +35,11 @@ you act in one of these areas:
   summary+diagnostic sensors. Add a new non-parcel sensor's unique_id to the set.
 - **Per-parcel sensors are removed by the summary sensor** via
   `entity_registry.async_remove` (self-removal races and leaves ghosts).
-- **The optional pickup-point summaries are a pair.** A carrier that can tell
-  a parcel is destined for a pickup point exposes
-  `en_route_to_pickup_point` for `pickup is true` before it arrives; one that
-  can reach `ParcelStatus.AT_PICKUP_POINT` also exposes `awaiting_pickup`.
+- **The pickup-point summaries are a pair.** A carrier that can deliver to a
+  pickup point or locker exposes both `en_route_to_pickup_point` and
+  `awaiting_pickup`, even before a real parcel has shown the status or flag
+  (they read 0 until then; record it in `PENDING_*`). A carrier without pickup
+  points exposes neither and keeps `pickup` constantly False.
   See *Parcel contract* in `CONVENTIONS.md`. Say "pickup point", not
   "ServicePoint"/"parcel shop"/"locker", for the generic concept; the
   example carrier demonstrates both canonical sensors.
@@ -88,8 +89,15 @@ you act in one of these areas:
   attributes, where `raw` is at least kept out of the recorder by
   `_unrecorded_attributes`.
 - **`None` on purpose:** sender, receiver, `planned_from`/`planned_to`,
-  pickup point, weight, dimensions. `pickup` is always `False`.
-  `CAPABILITIES` is `url` + `history`.
+  pickup point name, weight, dimensions. `pickup` is `is_pickup(None, status,
+  history statuses)`, so it turns true once a parcel reaches
+  `at_pickup_point`; both `awaiting_pickup` and `en_route_to_pickup_point` are
+  exposed and read 0 until then. No pickup-point status, flag or name has been
+  seen on a real parcel, so `pickup_point` is pending (`PENDING_CAPABILITIES`)
+  and stays `None` until one is. The tracking page gives no delivery
+  window, so `planned_from`/`planned_to` stay `None` and `next_delivery` and the
+  calendar stay empty. `delivered_at` is the page's own delivery time, read as
+  `America/Chicago`. `CAPABILITIES` is `url` + `history`.
 - **Polling:** no delivery window exists, so `out_for_delivery` always sits in
   the hot tier until delivered.
 

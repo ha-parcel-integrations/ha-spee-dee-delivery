@@ -138,7 +138,7 @@ The `status` field is the carrier-agnostic enum shared by the whole integration 
 | `problem` | A misrouted-parcel scan was recorded; the current status can return to `in_transit` while the history keeps the incident |
 | `unknown` | A status we have not mapped yet |
 
-`registered`, `at_pickup_point` and `returning` never occur: Spee-Dee Delivery's tracking page shows none of them.
+`registered`, `at_pickup_point` and `returning` have not been seen on a real parcel yet: Spee-Dee Delivery's tracking page has shown none of them so far. The pickup point sensors read 0 until one appears, and no pickup point name is shown.
 
 The carrier's own human-readable text is available as `raw_status`, without the
 per-scan code some scans end in (`OUT FOR DELIVERY (22045)` reads
