@@ -40,6 +40,7 @@ def _parcel(
         "barcode": barcode,
         "sender": "Sender",
         "receiver": None,
+        "contents": None,
         "status": status,
         "pickup": pickup,
         "planned_from": planned_from,
@@ -105,6 +106,13 @@ def test_next_delivery_skips_a_window_that_has_ended():
     assert sensor.extra_state_attributes["barcode"] == "STRETCHED"
     coordinator.data = [_parcel("OLD", planned_from="2000-01-01T10:00:00Z")]
     assert sensor.native_value is None
+
+
+def test_next_delivery_carries_the_contents():
+    parcel = _parcel("A", planned_from="2099-05-01T10:00:00Z")
+    parcel["contents"] = "Running shoes"
+    sensor = SpeeDeeDeliveryNextDeliverySensor(_coordinator([parcel]), _entry())
+    assert sensor.extra_state_attributes["contents"] == "Running shoes"
 
 
 def test_next_delivery_skips_unparseable_moment():
